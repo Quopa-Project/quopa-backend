@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
-import {User} from "./users.entity";
+import {User} from "./entity/users.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import { Repository } from 'typeorm';
 import {JwtService} from "@nestjs/jwt";
@@ -35,7 +35,8 @@ export class UsersService {
         const newUser = this.userRepository.create({
             ...registerUserDto,
             password: hashedPassword,
-            tokenVersion: 1
+            tokenVersion: 1,
+            accountVerified: false
         });
 
         const savedUser = await this.userRepository.save(newUser);

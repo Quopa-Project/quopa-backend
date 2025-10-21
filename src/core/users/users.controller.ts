@@ -1,6 +1,5 @@
 import {
-    BadRequestException,
-    Body, Controller, Get, Param, ParseIntPipe, Post, Request, UseGuards, UsePipes, ValidationPipe
+    Body, Controller, Get, Post, Request, UseGuards, UsePipes, ValidationPipe
 } from '@nestjs/common';
 import {UsersService} from "./users.service";
 import {RegisterUserDto} from "./dto/register-user.dto";
@@ -30,10 +29,5 @@ export class UsersController {
     @ApiBearerAuth('jwt-auth')
     getProfile(@Request() req: any) {
         return this.usersService.findById(req.user.id);
-    }
-
-    @Get(':id')
-    getById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
-        return this.usersService.findById(id);
     }
 }

@@ -30,6 +30,9 @@ export class User {
     @Column()
     tokenVersion: number;
 
+    @Column()
+    accountVerified: boolean;
+
     @CreateDateColumn()
     createdAt: Date;
 
