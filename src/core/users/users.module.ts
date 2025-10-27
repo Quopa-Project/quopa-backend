@@ -8,13 +8,14 @@ import {ConfigModule} from "@nestjs/config";
 import {JwtStrategy} from "../../security/jwt.strategy";
 import {MailService} from "../../mail/mail.service";
 import {ValidationToken} from "./entity/validation-tokens.entity";
+import {VerificationCode} from "./entity/verification-code.entity";
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true
         }),
-        TypeOrmModule.forFeature([User, ValidationToken]),
+        TypeOrmModule.forFeature([User, ValidationToken, VerificationCode]),
         JwtModule.register({
             secret: process.env.JWT_SECRET ?? 'Secret_Key_Quopa_Back_022506',
             signOptions: { expiresIn: '1w' }

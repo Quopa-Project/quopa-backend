@@ -8,6 +8,10 @@ import {RegisterUserDto} from "./dto/register-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
 import {MailService} from "../../mail/mail.service";
 import {ValidationToken} from "./entity/validation-tokens.entity";
+import {VerificationCode} from "./entity/verification-code.entity";
+import {SendCodeDto} from "./dto/send-code.dto";
+import {VerifyCodeDto} from "./dto/verify-code.dto";
+import {ResetPasswordDto} from "./dto/reset-password.dto";
 
 @Injectable()
 export class UsersService {
@@ -17,6 +21,8 @@ export class UsersService {
         private userRepository: Repository<User>,
         @InjectRepository(ValidationToken)
         private validationTokenRepository: Repository<ValidationToken>,
+        @InjectRepository(VerificationCode)
+        private verificationCodeRepository: Repository<VerificationCode>,
         private jwtService: JwtService,
         private mailService: MailService,
         private dataSource: DataSource
@@ -67,7 +73,7 @@ export class UsersService {
             });
             const savedValidationToken = await validationTokenRepository.save(newValidationToken);
 
-            this.mailService.sendAccountVerificationEmail(email, savedValidationToken.token).then();
+            this.mailService.sendAccountVerificationEmail(email, savedValidationToken.token);
 
             return savedUser;
         });
@@ -165,6 +171,89 @@ export class UsersService {
         }
 
         return { user };
+    }
+
+    async sendVerificationCode(sendCodeDto: SendCodeDto) {
+        const user = await this.userRepository.findOneBy({
+            email: sendCodeDto.email
+        });
+        if (!user) {
+            throw new NotFoundException({
+                message: ['Usuario no encontrado.'],
+                error: 'Not Found',
+                statusCode: 404
+            });
+        }
+
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        await this.mailService.sendVerificationCodeEmail(sendCodeDto.email, code);
+
+        const verificationCode = this.verificationCodeRepository.create({
+            code: code,
+            isUsed: false,
+            user: user,
+        });
+        await this.verificationCodeRepository.save(verificationCode);
+
+        return { message: 'Correo enviado correctamente.' };
+    }
+
+    async verifyCode(verifyCodeDto: VerifyCodeDto) {
+        const user = await this.userRepository.findOneBy({
+            email: verifyCodeDto.email
+        });
+        if (!user) {
+            throw new NotFoundException({
+                message: ['Usuario no encontrado.'],
+                error: 'Not Found',
+                statusCode: 404
+            });
+        }
+
+        const verificationCode = await this.verificationCodeRepository.findOne({
+            where: {
+                user: { id: user.id },
+                code: verifyCodeDto.code,
+                isUsed: false,
+            },
+            order: { createdAt: 'DESC' }
+        });
+        if (!verificationCode) {
+            throw new BadRequestException({
+                message: ['Código ya usado o inválido.'],
+                error: "Bad Request",
+                statusCode: 400
+            });
+        }
+
+        await this.verificationCodeRepository.update(verificationCode.id, { isUsed: true });
+
+        return { message: 'Código validado correctamente.' };
+    }
+
+    async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const user = await this.userRepository.findOneBy({
+            email: resetPasswordDto.email
+        });
+        if (!user) {
+            throw new NotFoundException({
+                message: ['Usuario no encontrado.'],
+                error: 'Not Found',
+                statusCode: 404
+            });
+        }
+
+        const hashedPassword = await bcrypt.hash(resetPasswordDto.password, 10);
+
+        if (resetPasswordDto.invalidateTokens) {
+            user.tokenVersion = user.tokenVersion + 1;
+            await this.userRepository.update(user.id, { password: hashedPassword, tokenVersion: user.tokenVersion });
+        } else {
+            await this.userRepository.update(user.id, { password: hashedPassword });
+        }
+
+        return { message: 'Contraseña actualizada correctamente.' };
     }
 
     async findByIdToValidateToken(id: number) {

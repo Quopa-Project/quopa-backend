@@ -9,7 +9,7 @@ export class MailService {
     this.resend = new Resend(process.env.RESEND_API_KEY);
   }
 
-  async sendAccountVerificationEmail(to: string, validationToken: string) {
+  sendAccountVerificationEmail(to: string, validationToken: string) {
     const url = `${process.env.FRONT_DOMAIN}/account-verification/${validationToken}`;
 
     const html =
@@ -54,7 +54,7 @@ export class MailService {
       '<p>Este correo se encuentra desatendido.<p/>' +
       '<p>Saludos desde el equipo de seguridad de Quopa.</p>';
 
-    const { data, error } = await this.resend.emails.send({
+    const { error } = await this.resend.emails.send({
       from: 'forget-password-qr-kitchen@socialsinergy.store',
       to: to,
       subject: 'Restauración de contraseña',
@@ -68,7 +68,5 @@ export class MailService {
         statusCode: 500
       });
     }
-
-    return data;
   }
 }
