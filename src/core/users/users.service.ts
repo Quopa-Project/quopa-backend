@@ -15,6 +15,8 @@ export class UsersService {
     constructor(
         @InjectRepository(User)
         private userRepository: Repository<User>,
+        @InjectRepository(ValidationToken)
+        private validationTokenRepository: Repository<ValidationToken>,
         private jwtService: JwtService,
         private mailService: MailService,
         private dataSource: DataSource
@@ -49,7 +51,8 @@ export class UsersService {
             const savedUser = await userRepository.save(newUser);
 
             const payload = {
-                sub: savedUser.id
+                sub: savedUser.id,
+                tokenVersion: savedUser.tokenVersion
             };
             const token = this.jwtService.sign(payload);
 
@@ -70,6 +73,39 @@ export class UsersService {
         });
 
         return { user: savedUser };
+    }
+
+    async validateToken(userId: number) {
+        const validationToken = await this.validationTokenRepository.findOneBy({
+            user: { id: userId }
+        });
+        if (!validationToken) {
+            throw new BadRequestException({
+                message: ['No existe validación para el usuario.'],
+                error: "Bad Request",
+                statusCode: 400
+            });
+        }
+
+        if (validationToken.tokenExpiration < new Date()) {
+            throw new BadRequestException({
+                message: ['El token ha expirado.'],
+                error: "Bad Request",
+                statusCode: 400
+            });
+        }
+
+        if (validationToken.accountVerified) {
+            throw new BadRequestException({
+                message: ['El usuario ya ha sido validado.'],
+                error: "Bad Request",
+                statusCode: 400
+            });
+        }
+
+        await this.validationTokenRepository.update(validationToken.id, { accountVerified: true });
+
+        return { message: 'success' };
     }
 
     async login(loginUserDto: LoginUserDto) {

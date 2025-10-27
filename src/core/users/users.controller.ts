@@ -18,6 +18,13 @@ export class UsersController {
         return this.usersService.register(userDto);
     }
 
+    @Get('validate-token')
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth('jwt-auth')
+    validateToken(@Request() req: any) {
+        return this.usersService.validateToken(req.user.id);
+    }
+
     @Post('login')
     @UsePipes(new ValidationPipe({ whitelist: true }))
     login(@Body() userDto: LoginUserDto) {
