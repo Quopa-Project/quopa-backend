@@ -25,9 +25,4 @@ export class RegisterUserDto {
     @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres.' })
     @ApiProperty({ example: 'string' })
     password: string;
-
-    @IsNotEmpty({ message: 'El rol es obligatorio.' })
-    @IsEnum(UserRole, { message: 'El rol debe ser válido.' })
-    @ApiProperty({ enum: UserRole, example: UserRole.CLIENT })
-    role: UserRole;
 }

@@ -1,11 +1,13 @@
 import {BadRequestException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
-import {User} from "./entity/users.entity";
+import {User, UserRole} from "./entity/users.entity";
 import {InjectRepository} from "@nestjs/typeorm";
-import { Repository } from 'typeorm';
+import {DataSource, Repository} from 'typeorm';
 import {JwtService} from "@nestjs/jwt";
 import * as bcrypt from 'bcrypt';
 import {RegisterUserDto} from "./dto/register-user.dto";
 import {LoginUserDto} from "./dto/login-user.dto";
+import {MailService} from "../../mail/mail.service";
+import {ValidationToken} from "./entity/validation-tokens.entity";
 
 @Injectable()
 export class UsersService {
@@ -14,6 +16,8 @@ export class UsersService {
         @InjectRepository(User)
         private userRepository: Repository<User>,
         private jwtService: JwtService,
+        private mailService: MailService,
+        private dataSource: DataSource
     ) {}
 
     async register(registerUserDto: RegisterUserDto) {
@@ -32,14 +36,38 @@ export class UsersService {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = this.userRepository.create({
-            ...registerUserDto,
-            password: hashedPassword,
-            tokenVersion: 1,
-            accountVerified: false
-        });
+        const savedUser = await this.dataSource.transaction(async manager => {
+            const userRepository = manager.getRepository(User);
+            const validationTokenRepository = manager.getRepository(ValidationToken);
 
-        const savedUser = await this.userRepository.save(newUser);
+            const newUser = userRepository.create({
+                ...registerUserDto,
+                password: hashedPassword,
+                role: UserRole.CLIENT,
+                tokenVersion: 1
+            });
+            const savedUser = await userRepository.save(newUser);
+
+            const payload = {
+                sub: savedUser.id
+            };
+            const token = this.jwtService.sign(payload);
+
+            const expirationDate = new Date();
+            expirationDate.setDate(expirationDate.getDate() + 1);
+
+            const newValidationToken = validationTokenRepository.create({
+                accountVerified: false,
+                token: token,
+                tokenExpiration: expirationDate,
+                user: savedUser
+            });
+            const savedValidationToken = await validationTokenRepository.save(newValidationToken);
+
+            this.mailService.sendAccountVerificationEmail(email, savedValidationToken.token).then();
+
+            return savedUser;
+        });
 
         return { user: savedUser };
     }
@@ -47,12 +75,21 @@ export class UsersService {
     async login(loginUserDto: LoginUserDto) {
         const { email, password } = loginUserDto;
 
-        const user = await this.userRepository.findOneBy({
-            email
+        const user = await this.userRepository.findOne({
+            where: { email },
+            relations: ['validationToken']
         });
         if (!user) {
             throw new UnauthorizedException({
                 message: ['Correo o contraseña inválidos.'],
+                error: "Unauthorized",
+                statusCode: 401
+            });
+        }
+
+        if (!user.validationToken.accountVerified) {
+            throw new UnauthorizedException({
+                message: ['Necesita validar su correo con el enlace que le hemos enviado.'],
                 error: "Unauthorized",
                 statusCode: 401
             });

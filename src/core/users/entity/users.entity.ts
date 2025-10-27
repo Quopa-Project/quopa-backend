@@ -1,4 +1,13 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    OneToOne,
+    PrimaryGeneratedColumn,
+    UpdateDateColumn
+} from 'typeorm';
+import {ValidationToken} from "./validation-tokens.entity";
 
 export enum UserRole {
     SUPER_ADMIN = 'SUPER_ADMIN', ADMIN = 'ADMIN', BRANCH = 'BRANCH', CLIENT = 'CLIENT'
@@ -30,9 +39,6 @@ export class User {
     @Column()
     tokenVersion: number;
 
-    @Column()
-    accountVerified: boolean;
-
     @CreateDateColumn()
     createdAt: Date;
 
@@ -41,4 +47,7 @@ export class User {
 
     @DeleteDateColumn()
     deletedAt: Date;
+
+    @OneToOne(() => ValidationToken, (validationToken) => validationToken.user)
+    validationToken: ValidationToken;
 }
