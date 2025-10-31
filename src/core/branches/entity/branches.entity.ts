@@ -16,6 +16,9 @@ export class Branch {
   id: number;
 
   @Column()
+  name: string;
+
+  @Column()
   address: string;
 
   @CreateDateColumn()
