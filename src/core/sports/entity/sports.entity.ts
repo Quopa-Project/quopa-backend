@@ -6,12 +6,15 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class Sports {
+export class Sport {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   name: string;
+
+  @Column()
+  description: string;
 
   @CreateDateColumn()
   createdAt: Date;

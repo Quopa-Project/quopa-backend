@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './core/users/users.module';
 import { CompaniesModule } from './core/companies/companies.module';
 import { BranchesModule } from './core/branches/branches.module';
+import { SportsModule } from './core/sports/sports.module';
+import { CourtsModule } from './core/courts/courts.module';
 
 @Module({
     imports: [
@@ -24,7 +26,9 @@ import { BranchesModule } from './core/branches/branches.module';
         }),
         UsersModule,
         CompaniesModule,
-        BranchesModule
+        BranchesModule,
+        SportsModule,
+        CourtsModule
     ],
     controllers: [AppController],
     providers: [AppService],
