@@ -50,7 +50,7 @@ export class CompaniesService {
     });
     if (!company) {
       throw new NotFoundException({
-        message: ['Compañía no encontrado.'],
+        message: ['Compañía no encontrada.'],
         error: 'Not Found',
         statusCode: 404
       });

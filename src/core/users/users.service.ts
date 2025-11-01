@@ -29,10 +29,8 @@ export class UsersService {
     ) {}
 
     async register(registerUserDto: RegisterUserDto) {
-        const { email, password } = registerUserDto;
-
         const userExisting = await this.userRepository.findOneBy({
-            email
+            email: registerUserDto.email
         });
         if (userExisting) {
             throw new BadRequestException({
@@ -42,7 +40,7 @@ export class UsersService {
             });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(registerUserDto.password, 10);
 
         const savedUser = await this.dataSource.transaction(async manager => {
             const userRepository = manager.getRepository(User);
@@ -73,7 +71,7 @@ export class UsersService {
             });
             const savedValidationToken = await validationTokenRepository.save(newValidationToken);
 
-            this.mailService.sendAccountVerificationEmail(email, savedValidationToken.token);
+            this.mailService.sendAccountVerificationEmail(registerUserDto.email, savedValidationToken.token);
 
             return savedUser;
         });
@@ -129,7 +127,7 @@ export class UsersService {
             });
         }
 
-        if (!user.validationToken.accountVerified) {
+        if (user.role == UserRole.CLIENT && !user.validationToken.accountVerified) {
             throw new UnauthorizedException({
                 message: ['Necesita validar su correo con el enlace que le hemos enviado.'],
                 error: "Unauthorized",

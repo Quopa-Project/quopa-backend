@@ -12,7 +12,6 @@ export class RegisterUserDto {
     lastName: string;
 
     @IsNotEmpty({ message: 'El número de teléfono es obligatorio.' })
-    @IsPhoneNumber('PE', { message: "El número de teléfono debe ser válido." })
     @ApiProperty({ example: 'string' })
     phoneNumber: string;
 
