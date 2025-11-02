@@ -1,10 +1,11 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import { Court } from "./entity/courts.entity";
 import {Branch} from "../branches/entity/branches.entity";
 import {CreateCourtDto} from "./dto/create-court.dto";
 import {Sport} from "../sports/entity/sports.entity";
+import {UpdateCourtDto} from "./dto/update-court.dto";
 
 @Injectable()
 export class CourtsService {
@@ -51,5 +52,54 @@ export class CourtsService {
     const savedCourt = await this.courtRepository.save(newCourt);
 
     return { court: savedCourt };
+  }
+
+  async findByBranchId(branchId: number) {
+    const courts = await this.courtRepository.find({
+      where: { branch: { id: branchId } },
+      relations: ['branch', 'sport']
+    });
+    if (!courts.length) {
+      throw new NotFoundException({
+        message: ['Canchas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { courts };
+  }
+
+  async findById(id: number) {
+    const court = await this.courtRepository.findOne({
+      where: { id },
+      relations: ['branch', 'sport']
+    });
+    if (!court) {
+      throw new NotFoundException({
+        message: ['Cancha no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { court };
+  }
+
+  async updateById(id: number, updateCourtDto: UpdateCourtDto) {
+    const court = await this.courtRepository.findOneBy({
+      id
+    });
+    if (!court) {
+      throw new NotFoundException({
+        message: ['Cancha no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await this.courtRepository.update(id, updateCourtDto);
+
+    return this.findById(id);
   }
 }
