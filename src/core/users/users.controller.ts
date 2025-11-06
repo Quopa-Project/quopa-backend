@@ -1,5 +1,6 @@
 import {
-    Body, Controller, Get, Post, Request, UseGuards, UsePipes, ValidationPipe
+    BadRequestException,
+    Body, Controller, Get, Param, ParseIntPipe, Post, Put, Request, UseGuards, UsePipes, ValidationPipe
 } from '@nestjs/common';
 import {UsersService} from "./users.service";
 import {RegisterUserDto} from "./dto/register-user.dto";
@@ -9,6 +10,7 @@ import {ApiBearerAuth} from "@nestjs/swagger";
 import {SendCodeDto} from "./dto/send-code.dto";
 import {VerifyCodeDto} from "./dto/verify-code.dto";
 import {ResetPasswordDto} from "./dto/reset-password.dto";
+import {UpdateUserDto} from "./dto/update-user.dto";
 
 @Controller('users')
 export class UsersController {
@@ -57,5 +59,11 @@ export class UsersController {
     @UsePipes(new ValidationPipe({ whitelist: true }))
     resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
         return this.usersService.resetPassword(resetPasswordDto);
+    }
+
+    @Put(':id')
+    @UsePipes(new ValidationPipe({ whitelist: true }))
+    updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateUserDto: UpdateUserDto) {
+        return this.usersService.updateById(id, updateUserDto);
     }
 }

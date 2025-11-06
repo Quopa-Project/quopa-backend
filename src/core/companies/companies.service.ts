@@ -4,6 +4,7 @@ import {Repository} from "typeorm";
 import {Company} from "./entity/companies.entity";
 import {CreateCompanyDto} from "./dto/create-company.dto";
 import {User, UserRole} from "../users/entity/users.entity";
+import {UpdateCompanyDto} from "./dto/update-company.dto";
 
 @Injectable()
 export class CompaniesService {
@@ -57,5 +58,37 @@ export class CompaniesService {
     }
 
     return { company };
+  }
+
+  async findById(id: number) {
+    const company = await this.companyRepository.findOneBy({
+      id
+    });
+    if (!company) {
+      throw new NotFoundException({
+        message: ['Compañía no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { company };
+  }
+
+  async updateById(id: number, updateCompanyDto: UpdateCompanyDto) {
+    const company = await this.companyRepository.findOneBy({
+      id
+    });
+    if (!company) {
+      throw new NotFoundException({
+        message: ['Compañía no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await this.companyRepository.update(id, updateCompanyDto);
+
+    return this.findById(id);
   }
 }

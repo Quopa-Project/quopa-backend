@@ -1,6 +1,5 @@
-import {IsEmail, IsEnum, IsNotEmpty, IsPhoneNumber, MinLength} from 'class-validator';
+import {IsEmail, IsNotEmpty, MinLength} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { UserRole } from '../entity/users.entity';
 
 export class RegisterUserDto {
     @IsNotEmpty({ message: 'El nombre es obligatorio.' })

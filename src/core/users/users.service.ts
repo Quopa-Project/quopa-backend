@@ -1,4 +1,10 @@
-import {BadRequestException, Injectable, NotFoundException, UnauthorizedException} from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    NotFoundException,
+    UnauthorizedException
+} from '@nestjs/common';
 import {User, UserRole} from "./entity/users.entity";
 import {InjectRepository} from "@nestjs/typeorm";
 import {DataSource, Repository} from 'typeorm';
@@ -12,6 +18,7 @@ import {VerificationCode} from "./entity/verification-code.entity";
 import {SendCodeDto} from "./dto/send-code.dto";
 import {VerifyCodeDto} from "./dto/verify-code.dto";
 import {ResetPasswordDto} from "./dto/reset-password.dto";
+import {UpdateUserDto} from "./dto/update-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -169,6 +176,36 @@ export class UsersService {
         }
 
         return { user };
+    }
+
+    async updateById(id: number, updateUserDto: UpdateUserDto) {
+        const user = await this.userRepository.findOneBy({
+            id
+        });
+        if (!user) {
+            throw new NotFoundException({
+                message: ['Usuario no encontrado.'],
+                error: 'Not Found',
+                statusCode: 404
+            });
+        }
+
+        if (updateUserDto.email && updateUserDto.email !== user.email) {
+            const existingUser = await this.userRepository.findOne({
+                where: { email: updateUserDto.email }
+            });
+            if (existingUser) {
+                throw new ConflictException({
+                    message: ['El correo electrónico ya está en uso.'],
+                    error: 'Conflict',
+                    statusCode: 409
+                });
+            }
+        }
+
+        await this.userRepository.update(id, updateUserDto);
+
+        return this.findById(id);
     }
 
     async sendVerificationCode(sendCodeDto: SendCodeDto) {
