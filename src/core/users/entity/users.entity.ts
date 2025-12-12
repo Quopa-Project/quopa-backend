@@ -48,6 +48,6 @@ export class User {
     @DeleteDateColumn()
     deletedAt: Date;
 
-    @OneToOne(() => ValidationToken, (validationToken) => validationToken.user)
+    @OneToOne(() => ValidationToken)
     validationToken: ValidationToken;
 }
