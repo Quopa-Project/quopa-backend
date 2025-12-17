@@ -13,20 +13,20 @@ import {
   ValidationPipe
 } from '@nestjs/common';
 import {CompaniesService} from "./companies.service";
-import {CreateCompanyDto} from "./dto/create-company.dto";
 import {JwtAuthGuard} from "../../security/jwt-auth.guard";
 import {ApiBearerAuth} from "@nestjs/swagger";
 import {UpdateCompanyDto} from "./dto/update-company.dto";
+import {CreateUserCompanyDto} from "./dto/create-user-company.dto";
 
 @Controller('companies')
 export class CompaniesController {
 
   constructor(private readonly companiesService: CompaniesService) {}
 
-  @Post()
+  @Post('user-company')
   @UsePipes(new ValidationPipe({ whitelist: true }))
-  create(@Body() createCompanyDto: CreateCompanyDto) {
-    return this.companiesService.create(createCompanyDto);
+  createUserAndCompany(@Body() createUserCompanyDto: CreateUserCompanyDto) {
+    return this.companiesService.createUserAndCompany(createUserCompanyDto);
   }
 
   @Get('my')
@@ -34,6 +34,11 @@ export class CompaniesController {
   @ApiBearerAuth('jwt-auth')
   getMyCompany(@Request() req: any) {
     return this.companiesService.findByUserId(req.user.id);
+  }
+
+  @Get()
+  getAll() {
+    return this.companiesService.findAll();
   }
 
   @Put(':id')

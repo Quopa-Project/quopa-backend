@@ -1,10 +1,11 @@
 import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {DataSource, Repository} from "typeorm";
 import {Company} from "./entity/companies.entity";
-import {CreateCompanyDto} from "./dto/create-company.dto";
 import {User, UserRole} from "../users/entity/users.entity";
 import {UpdateCompanyDto} from "./dto/update-company.dto";
+import * as bcrypt from "bcrypt";
+import {CreateUserCompanyDto} from "./dto/create-user-company.dto";
 
 @Injectable()
 export class CompaniesService {
@@ -14,34 +15,41 @@ export class CompaniesService {
     private companyRepository: Repository<Company>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private dataSource: DataSource
   ) {}
 
-  async create(createCompanyDto: CreateCompanyDto) {
-    const user = await this.userRepository.findOneBy({
-      id: createCompanyDto.userId
+  async createUserAndCompany(createUserCompanyDto: CreateUserCompanyDto) {
+    const userExisting = await this.userRepository.findOneBy({
+      email: createUserCompanyDto.user.email
     });
-    if (!user) {
+    if (userExisting) {
       throw new BadRequestException({
-        message: ['Usuario no encontrado.'],
+        message: ['Email ya está en uso.'],
         error: "Bad Request",
         statusCode: 400
       });
     }
 
-    if (user.role !== UserRole.ADMIN) {
-      throw new BadRequestException({
-        message: ['Solo los usuarios administradores pueden tener compañías.'],
-        error: "Bad Request",
-        statusCode: 400
+    const hashedPassword = await bcrypt.hash(createUserCompanyDto.user.password, 10);
+
+    const savedCompany = await this.dataSource.transaction(async manager => {
+      const userRepository = manager.getRepository(User);
+      const companyRepository = manager.getRepository(Company);
+
+      const newUser = userRepository.create({
+        ...createUserCompanyDto.user,
+        password: hashedPassword,
+        role: UserRole.ADMIN,
+        tokenVersion: 1
       });
-    }
+      const savedUser = await userRepository.save(newUser);
 
-    const newCompany = this.companyRepository.create({
-      name: createCompanyDto.name,
-      user: user
+      const newCompany = companyRepository.create({
+        ...createUserCompanyDto.company,
+        user: savedUser
+      });
+      return await companyRepository.save(newCompany);
     });
-    const savedCompany = await this.companyRepository.save(newCompany);
-
     return { company: savedCompany };
   }
 
@@ -58,6 +66,19 @@ export class CompaniesService {
     }
 
     return { company };
+  }
+
+  async findAll() {
+    const companies = await this.companyRepository.find();
+    if (!companies.length) {
+      throw new NotFoundException({
+        message: ['Compañías no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { companies };
   }
 
   async findById(id: number) {
