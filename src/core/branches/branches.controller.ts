@@ -37,6 +37,11 @@ export class BranchesController {
     return this.branchesService.findByCompanyId(id);
   }
 
+  @Get(':id')
+  getBranchById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.branchesService.findById(id);
+  }
+
   @Put(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateBranchDto: UpdateBranchDto) {
