@@ -34,6 +34,11 @@ export class CourtsController {
     return this.courtsService.findByBranchId(id);
   }
 
+  @Get(':id')
+  getCourtById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.courtsService.findById(id);
+  }
+
   @Put(':id')
   @UsePipes(new ValidationPipe({ whitelist: true }))
   updateById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number, @Body() updateCourtDto: UpdateCourtDto) {

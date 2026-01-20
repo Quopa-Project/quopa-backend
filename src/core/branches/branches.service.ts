@@ -102,7 +102,7 @@ export class BranchesService {
   async findById(id: number) {
     const branch = await this.branchRepository.findOne({
       where: { id },
-      relations: ['company']
+      relations: ['company', 'user']
     });
     if (!branch) {
       throw new NotFoundException({
