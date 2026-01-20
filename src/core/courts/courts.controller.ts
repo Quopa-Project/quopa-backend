@@ -24,6 +24,11 @@ export class CourtsController {
     return this.courtsService.create(createCourtDto);
   }
 
+  @Get()
+  getAll() {
+    return this.courtsService.findAll();
+  }
+
   @Get('branch/:id')
   getCourtByBranchId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.courtsService.findByBranchId(id);

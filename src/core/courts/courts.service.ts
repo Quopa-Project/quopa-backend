@@ -70,6 +70,21 @@ export class CourtsService {
     return { courts };
   }
 
+  async findAll() {
+    const courts = await this.courtRepository.find({
+      relations: ['branch', 'sport']
+    });
+    if (!courts.length) {
+      throw new NotFoundException({
+        message: ['Canchas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { courts };
+  }
+
   async findById(id: number) {
     const court = await this.courtRepository.findOne({
       where: { id },
