@@ -2,6 +2,7 @@ import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Sport} from "./entity/sports.entity";
+import {CreateSportDto} from "./dto/create-sport.dto";
 
 @Injectable()
 export class SportsService {
@@ -11,7 +12,7 @@ export class SportsService {
     private sportRepository: Repository<Sport>,
   ) {}
 
-  async create(createSportDto: any) {
+  async create(createSportDto: CreateSportDto) {
     const sportExisting = await this.sportRepository.findOneBy({
       name: createSportDto.name
     });

@@ -8,6 +8,8 @@ import { CompaniesModule } from './core/companies/companies.module';
 import { BranchesModule } from './core/branches/branches.module';
 import { SportsModule } from './core/sports/sports.module';
 import { CourtsModule } from './core/courts/courts.module';
+import { OccupanciesModule } from './core/occupancies/occupancies.module';
+import { OccupancyTypesModule } from './core/occupancy-types/occupancy-types.module';
 
 @Module({
     imports: [
@@ -28,7 +30,9 @@ import { CourtsModule } from './core/courts/courts.module';
         CompaniesModule,
         BranchesModule,
         SportsModule,
-        CourtsModule
+        CourtsModule,
+        OccupanciesModule,
+        OccupancyTypesModule
     ],
     controllers: [AppController],
     providers: [AppService],
