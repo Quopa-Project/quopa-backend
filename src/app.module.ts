@@ -10,6 +10,7 @@ import { SportsModule } from './core/sports/sports.module';
 import { CourtsModule } from './core/courts/courts.module';
 import { OccupanciesModule } from './core/occupancies/occupancies.module';
 import { OccupancyTypesModule } from './core/occupancy-types/occupancy-types.module';
+import { BookingsModule } from './core/bookings/bookings.module';
 
 @Module({
     imports: [
@@ -32,7 +33,8 @@ import { OccupancyTypesModule } from './core/occupancy-types/occupancy-types.mod
         SportsModule,
         CourtsModule,
         OccupanciesModule,
-        OccupancyTypesModule
+        OccupancyTypesModule,
+        BookingsModule
     ],
     controllers: [AppController],
     providers: [AppService],

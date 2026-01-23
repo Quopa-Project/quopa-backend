@@ -55,7 +55,7 @@ export class MailService {
       '<p>Saludos desde el equipo de seguridad de Quopa.</p>';
 
     const { error } = await this.resend.emails.send({
-      from: 'forget-password-qr-kitchen@socialsinergy.store',
+      from: 'forget-password-quopa@socialsinergy.store',
       to: to,
       subject: 'Restauración de contraseña',
       html: html,
