@@ -5,6 +5,7 @@ import {Booking, BookingStatus} from "./entity/booking.entity";
 import {Court} from "../courts/entity/courts.entity";
 import {User} from "../users/entity/users.entity";
 import {CreateBookingDto} from "./dto/create-booking.dto";
+import {UpdateBookingDto} from "./dto/update-booking.dto";
 
 @Injectable()
 export class BookingsService {
@@ -69,5 +70,70 @@ export class BookingsService {
     const savedBooking = await this.bookingRepository.save(newBooking);
 
     return { booking: savedBooking };
+  }
+
+  async findByUserId(userId: number) {
+    const bookings = await this.bookingRepository.find({
+      where: { user: { id: userId } },
+      relations: ['court', 'court.branch', 'court.sport', 'rating']
+    });
+    if (!bookings.length) {
+      throw new NotFoundException({
+        message: ['Reservas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { bookings };
+  }
+
+  async findByBranchId(branchId: number) {
+    const bookings = await this.bookingRepository.find({
+      where: { court: { branch: { id: branchId } } },
+      relations: ['court', 'court.sport', 'user', 'rating']
+    });
+    if (!bookings.length) {
+      throw new NotFoundException({
+        message: ['Reservas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { bookings };
+  }
+
+  async findById(id: number) {
+    const booking = await this.bookingRepository.findOne({
+      where: { id },
+      relations: ['court', 'court.sport', 'user']
+    });
+    if (!booking) {
+      throw new NotFoundException({
+        message: ['Reserva no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { booking };
+  }
+
+  async updateById(id: number, updateBookingDto: UpdateBookingDto) {
+    const booking = await this.bookingRepository.findOneBy({
+      id
+    });
+    if (!booking) {
+      throw new NotFoundException({
+        message: ['Reserva no encontrada.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    await this.bookingRepository.update(id, { status: updateBookingDto.status });
+
+    return this.findById(id);
   }
 }

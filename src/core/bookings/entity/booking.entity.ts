@@ -1,11 +1,12 @@
 import {
   Column,
   CreateDateColumn, DeleteDateColumn,
-  Entity, ManyToOne,
+  Entity, ManyToOne, OneToOne,
   PrimaryGeneratedColumn, UpdateDateColumn,
 } from 'typeorm';
 import {Court} from "../../courts/entity/courts.entity";
 import {User} from "../../users/entity/users.entity";
+import {Rating} from "../../ratings/entity/rating.entity";
 
 export enum BookingStatus {
   PAYMENT_DUE = 'Pago Pendiente', CONFIRMED = 'Confirmado', CANCELED = 'Cancelado', FINISHED = 'Terminado'
@@ -45,4 +46,7 @@ export class Booking {
 
   @ManyToOne(() => Court)
   court: Court;
+
+  @OneToOne(() => Rating, (rating) => rating.booking)
+  rating: Rating;
 }
