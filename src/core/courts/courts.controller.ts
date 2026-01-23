@@ -34,6 +34,11 @@ export class CourtsController {
     return this.courtsService.findByBranchId(id);
   }
 
+  @Get('sport/:id')
+  getCourtBySportId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
+    return this.courtsService.findBySportId(id);
+  }
+
   @Get(':id')
   getCourtById(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.courtsService.findById(id);

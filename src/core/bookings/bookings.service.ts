@@ -41,6 +41,22 @@ export class BookingsService {
       });
     }
 
+    if (createBookingDto.numberOfPeople > court.capacity || createBookingDto.numberOfPeople < 1) {
+      throw new BadRequestException({
+        message: ['Capacidad incorrecta.'],
+        error: "Bad Request",
+        statusCode: 400
+      });
+    }
+
+    if (createBookingDto.date.getDate() < new Date().getDate() || createBookingDto.date.getMonth() < new Date().getMonth() || createBookingDto.date.getFullYear() < new Date().getFullYear()) {
+      throw new BadRequestException({
+        message: ['Fecha incorrecta.'],
+        error: "Bad Request",
+        statusCode: 400
+      });
+    }
+
     const newBooking = this.bookingRepository.create({
       date: createBookingDto.date,
       time: createBookingDto.time,
