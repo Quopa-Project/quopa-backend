@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {Booking, BookingStatus} from "../bookings/entity/booking.entity";
 import {Rating} from "./entity/rating.entity";
-import {CreateRatingDto} from "../bookings/dto/create-rating.dto";
+import {CreateRatingDto} from "./dto/create-rating.dto";
 
 @Injectable()
 export class RatingsService {
@@ -43,5 +43,21 @@ export class RatingsService {
     const savedRating = await this.ratingRepository.save(newRating);
 
     return { rating: savedRating };
+  }
+
+  async findByBranchId(branchId: number) {
+    const ratings = await this.ratingRepository.find({
+      where: { booking: { court: { branch: { id: branchId } } } },
+      relations: ['booking', 'booking.court', 'booking.user']
+    });
+    if (!ratings.length) {
+      throw new NotFoundException({
+        message: ['Calificaciones no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { ratings };
   }
 }
