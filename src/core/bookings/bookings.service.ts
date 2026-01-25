@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
-import {Repository} from "typeorm";
+import {Repository, Not, In} from "typeorm";
 import {Booking, BookingStatus} from "./entity/booking.entity";
 import {Court} from "../courts/entity/courts.entity";
 import {User} from "../users/entity/users.entity";
@@ -63,6 +63,7 @@ export class BookingsService {
       time: createBookingDto.time,
       numberOfPeople: createBookingDto.numberOfPeople,
       isPublic: createBookingDto.isPublic,
+      totalPrice: createBookingDto.totalPrice,
       status: BookingStatus.PAYMENT_DUE,
       court: court,
       user: user,
@@ -92,6 +93,22 @@ export class BookingsService {
     const bookings = await this.bookingRepository.find({
       where: { court: { branch: { id: branchId } } },
       relations: ['court', 'court.sport', 'user', 'rating']
+    });
+    if (!bookings.length) {
+      throw new NotFoundException({
+        message: ['Reservas no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { bookings };
+  }
+
+  async findByIsPublic(isPublic: boolean) {
+    const bookings = await this.bookingRepository.find({
+      where: { isPublic: isPublic, status: Not(In([BookingStatus.FINISHED, BookingStatus.CANCELED])) },
+      relations: ['court', 'court.sport', 'court.branch', 'user']
     });
     if (!bookings.length) {
       throw new NotFoundException({

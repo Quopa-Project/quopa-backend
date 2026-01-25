@@ -25,6 +25,12 @@ export class CreateBookingDto {
   @ApiProperty({ example: true })
   isPublic: boolean;
 
+  @IsNotEmpty({ message: 'El precio total es obligatorio.' })
+  @IsNumber({}, { message: 'El precio total debe ser un número.' })
+  @Type(() => Number)
+  @ApiProperty({ example: 10 })
+  totalPrice: number;
+
   @IsNotEmpty({ message: 'El ID del usuario es obligatorio.' })
   @IsNumber({}, { message: 'El ID del usuario debe ser un número.' })
   @Type(() => Number)

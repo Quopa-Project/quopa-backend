@@ -3,7 +3,7 @@ import {
   Body,
   Controller,
   Get,
-  Param,
+  Param, ParseBoolPipe,
   ParseIntPipe,
   Post, Put,
   UsePipes,
@@ -32,6 +32,11 @@ export class BookingsController {
   @Get('branch/:id')
   getBookingByBranchId(@Param('id', new ParseIntPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser un número") })) id: number) {
     return this.bookingsService.findByBranchId(id);
+  }
+
+  @Get('isPublic/:isPublic')
+  getBookingByIsPublic(@Param('isPublic', new ParseBoolPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser verdadero o falso") })) isPublic: boolean) {
+    return this.bookingsService.findByIsPublic(isPublic);
   }
 
   @Put(':id')

@@ -29,6 +29,9 @@ export class Booking {
   @Column()
   isPublic: boolean;
 
+  @Column('decimal', { precision: 10, scale: 2 })
+  totalPrice: number;
+
   @Column({ type: 'enum', enum: BookingStatus })
   status: BookingStatus;
 

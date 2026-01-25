@@ -12,6 +12,7 @@ import { OccupanciesModule } from './core/occupancies/occupancies.module';
 import { OccupancyTypesModule } from './core/occupancy-types/occupancy-types.module';
 import { BookingsModule } from './core/bookings/bookings.module';
 import { RatingsModule } from './core/ratings/ratings.module';
+import { JoinBookingsModule } from './core/join-bookings/join-bookings.module';
 
 @Module({
     imports: [
@@ -36,7 +37,8 @@ import { RatingsModule } from './core/ratings/ratings.module';
         OccupanciesModule,
         OccupancyTypesModule,
         BookingsModule,
-        RatingsModule
+        RatingsModule,
+        JoinBookingsModule
     ],
     controllers: [AppController],
     providers: [AppService],
