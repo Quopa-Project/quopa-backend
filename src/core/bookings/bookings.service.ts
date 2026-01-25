@@ -105,9 +105,9 @@ export class BookingsService {
     return { bookings };
   }
 
-  async findByIsPublic(isPublic: boolean) {
+  async findByIsPublic(isPublic: boolean, userId: number) {
     const bookings = await this.bookingRepository.find({
-      where: { isPublic: isPublic, status: Not(In([BookingStatus.FINISHED, BookingStatus.CANCELED])) },
+      where: { isPublic: isPublic, status: Not(In([BookingStatus.FINISHED, BookingStatus.CANCELED])), user: { id: Not(userId) } },
       relations: ['court', 'court.sport', 'court.branch', 'user']
     });
     if (!bookings.length) {

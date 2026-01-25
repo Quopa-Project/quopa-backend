@@ -5,13 +5,15 @@ import {
   Get,
   Param, ParseBoolPipe,
   ParseIntPipe,
-  Post, Put,
+  Post, Put, Request, UseGuards,
   UsePipes,
   ValidationPipe
 } from '@nestjs/common';
 import {BookingsService} from "./bookings.service";
 import {CreateBookingDto} from "./dto/create-booking.dto";
 import {UpdateBookingDto} from "./dto/update-booking.dto";
+import {JwtAuthGuard} from "../../security/jwt-auth.guard";
+import {ApiBearerAuth} from "@nestjs/swagger";
 
 @Controller('bookings')
 export class BookingsController {
@@ -35,8 +37,10 @@ export class BookingsController {
   }
 
   @Get('isPublic/:isPublic')
-  getBookingByIsPublic(@Param('isPublic', new ParseBoolPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser verdadero o falso") })) isPublic: boolean) {
-    return this.bookingsService.findByIsPublic(isPublic);
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('jwt-auth')
+  getBookingByIsPublic(@Param('isPublic', new ParseBoolPipe({ exceptionFactory: () => new BadRequestException("El parametro debe ser verdadero o falso") })) isPublic: boolean, @Request() req: any) {
+    return this.bookingsService.findByIsPublic(isPublic, req.user.id);
   }
 
   @Put(':id')
