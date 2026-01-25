@@ -2,7 +2,7 @@ name: Despliegue Continuo
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy_backend:
