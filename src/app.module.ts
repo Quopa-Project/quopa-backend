@@ -13,6 +13,12 @@ import { OccupancyTypesModule } from './core/occupancy-types/occupancy-types.mod
 import { BookingsModule } from './core/bookings/bookings.module';
 import { RatingsModule } from './core/ratings/ratings.module';
 import { JoinBookingsModule } from './core/join-bookings/join-bookings.module';
+import { TournamentsModule } from './core/tournament/tournaments.module';
+import { TournamentStaffModule } from './core/tournament-staff/tournament-staff.module';
+import { TeamsModule } from './core/teams/teams.module';
+import { PlayersModule } from './core/players/players.module';
+import { MatchesModule } from './core/matches/matches.module';
+import { MatchEventsModule } from './core/match-events/match-events.module';
 
 @Module({
     imports: [
@@ -38,7 +44,13 @@ import { JoinBookingsModule } from './core/join-bookings/join-bookings.module';
         OccupancyTypesModule,
         BookingsModule,
         RatingsModule,
-        JoinBookingsModule
+        JoinBookingsModule,
+        TournamentsModule,
+        TournamentStaffModule,
+        TeamsModule,
+        PlayersModule,
+        MatchesModule,
+        MatchEventsModule
     ],
     controllers: [AppController],
     providers: [AppService],

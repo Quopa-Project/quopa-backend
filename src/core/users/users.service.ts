@@ -178,6 +178,21 @@ export class UsersService {
         return { user };
     }
 
+    async findByTournamentManagerRole() {
+        const users = await this.userRepository.findBy({
+            role: UserRole.TOURNAMENT_MANAGER
+        });
+        if (!users.length) {
+            throw new NotFoundException({
+                message: ['Usuarios no encontrados.'],
+                error: 'Not Found',
+                statusCode: 404
+            });
+        }
+
+        return { users };
+    }
+
     async updateById(id: number, updateUserDto: UpdateUserDto) {
         const user = await this.userRepository.findOneBy({
             id

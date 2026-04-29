@@ -36,6 +36,11 @@ export class UsersController {
         return this.usersService.login(userDto);
     }
 
+    @Get('tournament-manager-role')
+    getAllByTournamentManagerRole() {
+        return this.usersService.findByTournamentManagerRole();
+    }
+
     @Get('my')
     @UseGuards(JwtAuthGuard)
     @ApiBearerAuth('jwt-auth')

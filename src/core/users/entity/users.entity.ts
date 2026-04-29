@@ -10,7 +10,7 @@ import {
 import {ValidationToken} from "./validation-tokens.entity";
 
 export enum UserRole {
-    SUPER_ADMIN = 'SUPER_ADMIN', ADMIN = 'ADMIN', BRANCH = 'BRANCH', CLIENT = 'CLIENT'
+    SUPER_ADMIN = 'SUPER_ADMIN', ADMIN = 'ADMIN', BRANCH = 'BRANCH', CLIENT = 'CLIENT', TOURNAMENT_MANAGER = 'TOURNAMENT_MANAGER'
 }
 
 @Entity()

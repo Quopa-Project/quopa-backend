@@ -99,6 +99,21 @@ export class BranchesService {
     return { branches };
   }
 
+  async findAll() {
+    const branches = await this.branchRepository.find({
+      relations: ['company']
+    });
+    if (!branches.length) {
+      throw new NotFoundException({
+        message: ['Sucursales no encontradas.'],
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+
+    return { branches };
+  }
+
   async findById(id: number) {
     const branch = await this.branchRepository.findOne({
       where: { id },
